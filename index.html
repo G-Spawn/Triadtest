@@ -2,579 +2,180 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ship Gallery test</title>
+    <title>Ship Gallery</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
+            margin: 0;
+            padding: 0;
             height: 100vh;
             overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        /* Background layer (bottom) */
-        .background-layer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
             background-image: url('back.webp');
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
-            z-index: -1; /* Ensures it stays at the bottom */
+            font-family: Arial, sans-serif;
         }
 
-        /* Main image container (top) */
-        .gallery-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1; /* Above background */
-        }
-
-        .main-image {
-            max-width: 90vw;
-            max-height: 85vh;
-            object-fit: contain;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-            transition: opacity 0.3s ease-in-out, transform 0.3s ease;
-        }
-
-        .main-image.loading {
-            filter: blur(10px);
-        }
-
-        /* Filename display */
-        .filename-display {
-            position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.85);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 32px;
-            font-size: 16px;
-            font-weight: 500;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            max-width: 90vw;
-            text-align: center;
-            z-index: 100;
-            transition: opacity 0.3s ease;
-        }
-
-        .filename-display.hidden {
-            opacity: 0;
-        }
-
-        /* Loading spinner */
-        .loading-spinner {
+        .gallery {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 48px;
-            height: 48px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            display: none;
+            text-align: center;
         }
 
-        @keyframes spin {
-            to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        /* Navigation controls */
-        .controls {
-            position: fixed;
-            bottom: 120px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 12px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 12px 24px;
-            border-radius: 32px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-        }
-
-        .control-btn {
-            background: white;
-            border: none;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .control-btn:hover {
-            transform: scale(1.1);
-            background: #f8f9fa;
-        }
-
-        .control-btn svg {
-            width: 24px;
-            height: 24px;
-            fill: #333;
-        }
-
-        /* Progress bar */
-        .progress-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            width: 0%;
-            transition: width 0.1s linear;
-        }
-
-        /* Instructions overlay */
-        .instructions {
-            position: fixed;
-            top: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 32px;
-            font-size: 14px;
-            backdrop-filter: blur(8px);
-            opacity: 0;
+        #ship-image {
+            max-width: 80vw;
+            max-height: 70vh;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
             transition: opacity 0.3s ease;
         }
 
-        .instructions.visible {
-            opacity: 1;
-        }
-
-        /* Fullscreen button */
-        .fullscreen-btn {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            width: 48px;
-            height: 48px;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
+        .nav {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            align-items: center;
-            justify-content: center;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background: rgba(0,0,0,0.7);
             color: white;
-            transition: all 0.2s ease;
+            border-radius: 5px;
         }
 
-        .fullscreen-btn:hover {
-            background: rgba(0, 0, 0, 0.9);
-            transform: scale(1.1);
+        button:hover {
+            background: rgba(0,0,0,0.9);
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .main-image {
-                max-width: 95vw;
-                max-height: 90vh;
-            }
-
-            .controls {
-                bottom: 100px;
-                padding: 10px 20px;
-            }
-
-            .control-btn {
-                width: 44px;
-                height: 44px;
-            }
-
-            .control-btn svg {
-                width: 20px;
-                height: 20px;
-            }
-
-            .filename-display {
-                font-size: 14px;
-                padding: 10px 16px;
-            }
+        #filename {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 18px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
     </style>
 </head>
 <body>
-    <!-- Background layer (bottom) -->
-    <div class="background-layer"></div>
 
-    <!-- Main gallery container (top) -->
-    <div class="gallery-container">
-        <img 
-            id="main-image" 
-            src="" 
-            alt="Gallery image"
-            class="main-image"
-        >
-        <div class="loading-spinner" id="spinner"></div>
+<div class="gallery">
+    <img id="ship-image" src="" alt="Ship">
+</div>
+
+<div id="filename"></div>
+
+<div class="nav">
+    <button onclick="prevShip()">← Previous</button>
+    <button onclick="nextShip()">Next →</button>
+</div>
+
+<script>
+    const ships = [
+        'COR-Caracara.png',
+        'DIS-Borer.png',
+        'DIS-Bute.png',
+        'DIS-Femur.png',
+        'DIS-Notch.png',
+        'DIS-Olympus.png',
+        'DIS-Pluto.png',
+        'DIS-Rig.png',
+        'DIS-Vaquita.png',
+        'DME-Shareholder.png',
+        'HES-Arribane.png',
+        'HES-Canister.png',
+        'HES-Phaeron.png',
+        'HES-Windreign.png',
+        'IHR-Victoria.png',
+        'JinZeros.png',
+        'Mcchicken.png',
+        'Mcchilly.png',
+        'Mi-CorKunai.png',
+        'Mi-CorTanuki.png',
+        'NS-Ethereal.png',
+        'NSK-Tiger.png',
+        'PB-Bratan.png',
+        'PB-Piva.png',
+        'PDW-Valkyrie.png',
+        'PTI-Spessbite.png',
+        'SE-Jitterbug.png',
+        'SKR-Archer.png',
+        'SKR-Argent.png',
+        'SKR-Autumn.png',
+        'SKR-Hammerhead.png',
+        'SKR-Kestrel.png',
+        'SKR-Lapetus.png',
+        'SKR-M-class.png',
+        'SKR-Noble.png',
+        'SKR-Peregrine.png',
+        'SKR-Praetorian.png',
+        'SKR-Sakuratsu.png',
+        'SKR-Twilight.png',
+        'TPC-Pillbox.png',
+        'UI-Spyglass.png',
+        'UNJ-Framework.png',
+        'UW-Sellsword.png',
+        'UW-Takeaway.png',
+        'ZOB-Claymore.png',
+        'CDM-Comet.png',
+        'COG-Arkansaw.png',
+        'HT-Sagitarius.png',
+        'MI-Siebel.png',
+        'PB-Padval.png',
+        'SHM-Judiciary.png',
+        'SHM-Magus.png',
+        'SKR-Littora.png',
+        'SKR-Pisces.png',
+        'SKR-Sirius.png',
+        'SRA-Duran.png',
+        'UNSA-Fortunate.png',
+        'ZOB-Sabine.png',
+        'Zob-Twilight.png'
+    ];
+
+    let currentIndex = 0;
+
+    function loadShip(index) {
+        const img = document.getElementById('ship-image');
+        const filename = document.getElementById('filename');
         
-        <!-- Progress bar -->
-        <div class="progress-container">
-            <div class="progress-bar" id="progress-bar"></div>
-        </div>
-
-        <!-- Filename display (shows current image name) -->
-        <div class="filename-display" id="filename-display">
-            Loading...
-        </div>
-
-        <!-- Instructions overlay -->
-        <div class="instructions" id="instructions">
-            Click, swipe, or use arrow keys to navigate • Hover to pause auto-play
-        </div>
-
-        <!-- Controls -->
-        <div class="controls">
-            <button class="control-btn" id="prev-btn" title="Previous image">
-                <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-            </button>
-            <button class="control-btn" id="play-pause-btn" title="Play/Pause">
-                <svg id="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                <svg id="pause-icon" viewBox="0 0 24 24" style="display: none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-            </button>
-            <button class="control-btn" id="next-btn" title="Next image">
-                <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
-            </button>
-        </div>
-
-        <!-- Fullscreen button -->
-        <button class="fullscreen-btn" id="fullscreen-btn" title="Toggle fullscreen">
-            <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-        </button>
-    </div>
-
-    <script>
-        // ============================================
-        // CONFIGURATION - ALL YOUR IMAGE NAMES
-        // ============================================
-        const images = [
-            'COR-Caracara.png',
-            'DIS-Borer.png',
-            'DIS-Bute.png',
-            'DIS-Femur.png',
-            'DIS-Notch.png',
-            'DIS-Olympus.png',
-            'DIS-Pluto.png',
-            'DIS-Rig.png',
-            'DIS-Vaquita.png',
-            'DME-Shareholder.png',
-            'HES-Arribane.png',
-            'HES-Canister.png',
-            'HES-Phaeron.png',
-            'HES-Windreign.png',
-            'IHR-Victoria.png',
-            'JinZeros.png',
-            'Mcchicken.png',
-            'Mcchilly.png',
-            'Mi-CorKunai.png',
-            'Mi-CorTanuki.png',
-            'NS-Ethereal.png',
-            'NSK-Tiger.png',
-            'PB-Bratan.png',
-            'PB-Piva.png',
-            'PDW-Valkyrie.png',
-            'PTI-Spessbite.png',
-            'SE-Jitterbug.png',
-            'SKR-Archer.png',
-            'SKR-Argent.png',
-            'SKR-Autumn.png',
-            'SKR-Hammerhead.png',
-            'SKR-Kestrel.png',
-            'SKR-Lapetus.png',
-            'SKR-M-class.png',
-            'SKR-Noble.png',
-            'SKR-Peregrine.png',
-            'SKR-Praetorian.png',
-            'SKR-Sakuratsu.png',
-            'SKR-Twilight.png',
-            'TPC-Pillbox.png',
-            'UI-Spyglass.png',
-            'UNJ-Framework.png',
-            'UW-Sellsword.png',
-            'UW-Takeaway.png',
-            'ZOB-Claymore.png',
-            'CDM-Comet.png',
-            'COG-Arkansaw.png',
-            'HT-Sagitarius.png',
-            'MI-Siebel.png',
-            'PB-Padval.png',
-            'SHM-Judiciary.png',
-            'SHM-Magus.png',
-            'SKR-Littora.png',
-            'SKR-Pisces.png',
-            'SKR-Sirius.png',
-            'SRA-Duran.png',
-            'UNSA-Fortunate.png',
-            'ZOB-Sabine.png',
-            'Zob-Twilight.png'
-        ];
-
-        // Auto-play settings (set to false to disable)
-        const autoPlay = true;
-        const autoPlayInterval = 3000; // milliseconds between slides
-
-        // ============================================
-        // STATE MANAGEMENT
-        // ============================================
-        let currentIndex = 0;
-        let isPlaying = true;
-        let autoplayTimer = null;
-        let progressInterval = null;
-        let lastProgressTime = Date.now();
-
-        // DOM Elements
-        const mainImage = document.getElementById('main-image');
-        const spinner = document.getElementById('spinner');
-        const progressBar = document.getElementById('progress-bar');
-        const playPauseBtn = document.getElementById('play-pause-btn');
-        const playIcon = document.getElementById('play-icon');
-        const pauseIcon = document.getElementById('pause-icon');
-        const instructions = document.getElementById('instructions');
-        const filenameDisplay = document.getElementById('filename-display');
-
-        // ============================================
-        // INITIALIZATION
-        // ============================================
-        function init() {
-            loadImage(currentIndex);
-            
-            if (autoPlay) {
-                startAutoPlay();
-            }
-
-            setupEventListeners();
-        }
-
-        // Load an image with loading state and filename display
-        function loadImage(index) {
-            const img = images[index];
-            
-            console.log(`Loading: ${img}`);
-            
-            // Show spinner and blur effect
-            mainImage.classList.add('loading');
-            spinner.style.display = 'block';
-            
-            // Reset progress bar
-            progressBar.style.width = '0%';
-            lastProgressTime = Date.now();
-
-            return new Promise((resolve) => {
-                const imgElement = document.createElement('img');
-                
-                imgElement.onload = () => {
-                    console.log(`✓ Loaded: ${img}`);
-                    mainImage.src = imgElement.src;
-                    mainImage.classList.remove('loading');
-                    spinner.style.display = 'none';
-                    
-                    // Update filename display with a slight delay for smooth transition
-                    setTimeout(() => {
-                        filenameDisplay.textContent = `🚢 ${img}`;
-                        filenameDisplay.classList.remove('hidden');
-                    }, 100);
-                    
-                    // Reset progress bar when image loads
-                    progressBar.style.width = '0%';
-                    lastProgressTime = Date.now();
-                    
-                    resolve();
-                };
-
-                imgElement.onerror = () => {
-                    console.error(`✗ Failed to load: ${img}`);
-                    mainImage.classList.remove('loading');
-                    spinner.style.display = 'none';
-                    
-                    // Show error message in filename display
-                    filenameDisplay.textContent = `⚠️ Error loading image`;
-                    filenameDisplay.classList.add('hidden');
-                    
-                    resolve(); // Continue anyway
-                };
-
-                imgElement.src = img;
-            });
-        }
-
-        // ============================================
-        // AUTO-PLAY FUNCTIONALITY
-        // ============================================
-        function startAutoPlay() {
-            if (!isPlaying) return;
-
-            autoplayTimer = setInterval(() => {
-                currentIndex = (currentIndex + 1) % images.length;
-                loadNextImage();
-            }, autoPlayInterval);
-
-            progressInterval = setInterval(updateProgressBar, 50);
-        }
-
-        function stopAutoPlay() {
-            if (autoplayTimer) clearInterval(autoplayTimer);
-            if (progressInterval) clearInterval(progressInterval);
-            isPlaying = false;
-            playIcon.style.display = 'block';
-            pauseIcon.style.display = 'none';
-        }
-
-        function startAutoPlay() {
-            isPlaying = true;
-            playIcon.style.display = 'none';
-            pauseIcon.style.display = 'block';
-            startAutoPlay();
-        }
-
-        function togglePlayPause() {
-            if (isPlaying) {
-                stopAutoPlay();
-            } else {
-                startAutoPlay();
-            }
-        }
-
-        // ============================================
-        // NAVIGATION FUNCTIONS
-        // ============================================
-        async function loadNextImage() {
-            currentIndex = (currentIndex + 1) % images.length;
-            await loadImage(currentIndex);
-            
-            // Reset progress bar when changing images
-            progressBar.style.width = '0%';
-            lastProgressTime = Date.now();
-        }
-
-        function loadPreviousImage() {
-            currentIndex = (currentIndex - 1 + images.length) % images.length;
-            await loadImage(currentIndex);
-            
-            // Reset progress bar when changing images
-            progressBar.style.width = '0%';
-            lastProgressTime = Date.now();
-        }
-
-        // ============================================
-        // EVENT LISTENERS
-        // ============================================
-        function setupEventListeners() {
-            // Button controls
-            document.getElementById('prev-btn').addEventListener('click', loadPreviousImage);
-            document.getElementById('next-btn').addEventListener('click', loadNextImage);
-            playPauseBtn.addEventListener('click', togglePlayPause);
-
-            // Keyboard navigation
-            document.addEventListener('keydown', (e) => {
-                switch(e.key) {
-                    case 'ArrowLeft':
-                        loadPreviousImage();
-                        break;
-                    case 'ArrowRight':
-                        loadNextImage();
-                        break;
-                    case ' ':
-                    case 'Escape':
-                        togglePlayPause();
-                        break;
-                    case 'f':
-                    case 'F':
-                        toggleFullscreen();
-                        break;
-                }
-            });
-
-            // Touch/swipe support
-            let touchStartX = 0;
-            document.addEventListener('touchstart', (e) => {
-                touchStartX = e.touches[0].clientX;
-            }, { passive: true });
-
-            document.addEventListener('touchend', (e) => {
-                const touchEndX = e.changedTouches[0].clientX;
-                const diff = touchStartX - touchEndX;
-                
-                if (Math.abs(diff) > 50) { // Minimum swipe distance
-                    if (diff > 0) {
-                        loadNextImage(); // Swipe left → next
-                    } else {
-                        loadPreviousImage(); // Swipe right → previous
-                    }
-                }
-            }, { passive: true });
-
-            // Mouse hover to pause auto-play
-            document.addEventListener('mouseenter', () => stopAutoPlay());
-            document.addEventListener('mouseleave', () => startAutoPlay());
-
-            // Fullscreen toggle
-            document.getElementById('fullscreen-btn').addEventListener('click', toggleFullscreen);
-
-            // Pause on ESC
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') stopAutoPlay();
-            });
-        }
-
-        function updateProgressBar() {
-            const elapsed = Date.now() - lastProgressTime;
-            const progress = Math.min((elapsed / autoPlayInterval) * 100, 100);
-            progressBar.style.width = `${progress}%`;
-        }
-
-        // ============================================
-        // FULLSCREEN FUNCTIONALITY
-        // ============================================
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log('Fullscreen error:', err);
-                });
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-        }
-
-        // ============================================
-        // AUTO-HIDE INSTRUCTIONS
-        // ============================================
+        // Fade out
+        img.style.opacity = '0';
+        
         setTimeout(() => {
-            instructions.classList.add('visible');
-        }, 1000);
+            img.src = ships[index];
+            filename.textContent = ships[index];
+            
+            // Fade in after loading starts
+            img.onload = () => {
+                img.style.opacity = '1';
+            };
+        }, 200);
+    }
 
-        // Start the gallery
-        init();
-    </script>
+    function nextShip() {
+        currentIndex = (currentIndex + 1) % ships.length;
+        loadShip(currentIndex);
+    }
+
+    function prevShip() {
+        currentIndex = (currentIndex - 1 + ships.length) % ships.length;
+        loadShip(currentIndex);
+    }
+
+    // Load first ship on page load
+    window.onload = () => {
+        loadShip(0);
+    };
+</script>
+
 </body>
 </html>
