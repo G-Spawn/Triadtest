@@ -3,13 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Gallery</title>
+    <title>Ship Gallery - Debug Mode</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             height: 100vh;
@@ -53,6 +49,52 @@
 
         .main-image.loading {
             filter: blur(10px);
+        }
+
+        /* Error overlay */
+        .error-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .error-overlay.visible {
+            display: flex;
+        }
+
+        .error-message {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .error-message h3 {
+            margin-bottom: 12px;
+            color: #d32f2f;
+        }
+
+        .error-message p {
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .error-message button {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
         }
 
         /* Loading indicator */
@@ -106,10 +148,6 @@
         .control-btn:hover {
             transform: scale(1.1);
             background: #f8f9fa;
-        }
-
-        .control-btn:active {
-            transform: scale(0.95);
         }
 
         .control-btn svg {
@@ -212,6 +250,27 @@
         >
         <div class="loading-spinner" id="spinner"></div>
         
+        <!-- Error overlay -->
+        <div class="error-overlay" id="error-overlay">
+            <div class="error-message">
+                <h3>⚠️ Images Not Loading</h3>
+                <p><strong>Issue:</strong> The gallery cannot find or load your ship images.</p>
+                <p><strong>Checklist:</strong></p>
+                <ol style="text-align: left; margin-left: 20px;">
+                    <li>Are all image files in the root folder of your GitHub repository?</li>
+                    <li>Do the filenames match exactly (case-sensitive)?</li>
+                    <li>Are the files actually uploaded (not just in git history)?</li>
+                </ol>
+                <p><strong>Solution:</strong></p>
+                <ul style="text-align: left; margin-left: 20px;">
+                    <li>Download all images from your repository</li>
+                    <li>Upload them again to the root folder</li>
+                    <li>Or use a different hosting service for images</li>
+                </ul>
+                <button onclick="location.reload()">Try Again</button>
+            </div>
+        </div>
+
         <!-- Progress bar -->
         <div class="progress-container">
             <div class="progress-bar" id="progress-bar"></div>
@@ -320,6 +379,7 @@
         let autoplayTimer = null;
         let progressInterval = null;
         let lastProgressTime = Date.now();
+        let loadErrors = [];
 
         // DOM Elements
         const mainImage = document.getElementById('main-image');
@@ -329,6 +389,7 @@
         const playIcon = document.getElementById('play-icon');
         const pauseIcon = document.getElementById('pause-icon');
         const instructions = document.getElementById('instructions');
+        const errorOverlay = document.getElementById('error-overlay');
 
         // ============================================
         // INITIALIZATION
@@ -343,9 +404,11 @@
             setupEventListeners();
         }
 
-        // Load an image with loading state
+        // Load an image with loading state and error handling
         function loadImage(index) {
             const img = images[index];
+            
+            console.log(`Loading: ${img}`);
             
             // Show spinner and blur effect
             mainImage.classList.add('loading');
@@ -359,6 +422,7 @@
                 const imgElement = document.createElement('img');
                 
                 imgElement.onload = () => {
+                    console.log(`✓ Loaded: ${img}`);
                     mainImage.src = imgElement.src;
                     mainImage.classList.remove('loading');
                     spinner.style.display = 'none';
@@ -371,9 +435,15 @@
                 };
 
                 imgElement.onerror = () => {
-                    console.error(`Failed to load: ${img}`);
+                    console.error(`✗ Failed to load: ${img}`);
                     mainImage.classList.remove('loading');
                     spinner.style.display = 'none';
+                    
+                    // Track error but continue loading next image
+                    if (!loadErrors.includes(img)) {
+                        loadErrors.push(img);
+                    }
+                    
                     resolve(); // Continue anyway
                 };
 
@@ -438,6 +508,23 @@
             progressBar.style.width = '0%';
             lastProgressTime = Date.now();
         }
+
+        // ============================================
+        // ERROR HANDLING
+        // ============================================
+        function checkForErrors() {
+            if (loadErrors.length > 0) {
+                console.warn(`Load errors detected: ${loadErrors.join(', ')}`);
+                
+                // Show error overlay after a delay
+                setTimeout(() => {
+                    errorOverlay.classList.add('visible');
+                }, 5000);
+            }
+        }
+
+        // Check for errors every time an image loads
+        setInterval(checkForErrors, 2000);
 
         // ============================================
         // EVENT LISTENERS
